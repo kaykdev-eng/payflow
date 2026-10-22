@@ -1,0 +1,6 @@
+CREATE TABLE wallets(
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL UNIQUE CONSTRAINT fk_user REFERENCES users(id),
+    balance NUMERIC(19,2) NOT NULL DEFAULT 0 CHECK ( balance >= 0 ),
+    created_at TIMESTAMP DEFAULT NOW()
+)

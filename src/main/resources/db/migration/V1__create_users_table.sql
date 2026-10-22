@@ -1,0 +1,10 @@
+CREATE TABLE users(
+    id BIGSERIAL PRIMARY KEY,
+    full_name VARCHAR(150) NOT NULL,
+    document VARCHAR(14) NOT NULL UNIQUE,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    balance NUMERIC(19,2) NOT NULL DEFAULT 0,
+    user_type VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+)
