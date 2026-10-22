@@ -77,7 +77,7 @@ public class UserTest {
     }
 
     @Test
-    @DisplayName("Should throw exception when UserType is null, empty, or blank")
+    @DisplayName("Should throw exception when UserType is null")
     void shouldValidateUserType() {
         assertThatThrownBy(() -> new User(
                 "Kayk",
