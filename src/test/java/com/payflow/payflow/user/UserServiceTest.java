@@ -1,5 +1,6 @@
 package com.payflow.payflow.user;
 
+import com.payflow.payflow.shared.ResourceAlreadyExistsException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +32,7 @@ public class UserServiceTest {
         when(repository.existsByEmail("kayk@gmail.com")).thenReturn(true);
 
         assertThatThrownBy(() -> service.register(userRequest))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceAlreadyExistsException.class)
                 .hasMessage("Email already exists");
 
         verify(repository, never()).save(any());
@@ -44,7 +45,7 @@ public class UserServiceTest {
         when(repository.existsByDocument("851")).thenReturn(true);
 
         assertThatThrownBy(() -> service.register(userRequest))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(ResourceAlreadyExistsException.class)
                 .hasMessage("Document already exists");
 
         verify(repository, never()).save(any());

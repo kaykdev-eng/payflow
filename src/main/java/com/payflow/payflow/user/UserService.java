@@ -1,5 +1,6 @@
 package com.payflow.payflow.user;
 
+import com.payflow.payflow.shared.ResourceAlreadyExistsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +19,10 @@ public class UserService {
         String normalizedEmail = request.email().toLowerCase().trim();
 
         if (repository.existsByEmail(normalizedEmail)) {
-            throw new IllegalArgumentException("Email already exists");
+            throw new ResourceAlreadyExistsException("Email already exists");
         }
         if (repository.existsByDocument(normalizedDocument)) {
-            throw new IllegalArgumentException("Document already exists");
+            throw new ResourceAlreadyExistsException("Document already exists");
         }
 
         String encodedPassword = encoder.encode(request.password());
