@@ -10,11 +10,11 @@ public record UserRegisterRequest(
         String fullName,
         @NotBlank
         String document,
-        @Email(message = "Field cannot be blank ")
+        @Email
         @NotBlank
         String email,
-        @NotBlank(message = "Field cannot be blank ")
-        @Size(min = 8, max = 50, message = "The password must be at least 6 to 8 characters long.")
+        @NotBlank(message = "Field cannot be blank")
+        @Size(min = 8, max = 50, message = "The password must be between 8 and 50 characters long.")
         String password,
         @NotNull
         UserType userType
