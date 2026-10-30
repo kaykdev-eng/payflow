@@ -8,6 +8,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -71,4 +72,44 @@ public class UserServiceTest {
         assertThat(savedUser.getPassword()).isNotEqualTo("123");
         assertThat(savedUser.getUserType()).isEqualTo(UserType.COMMON);
     }
+
+    @Test
+    @DisplayName("Should translate email constraint violation into ResourceAlreadyExists")
+    void shouldThrowAlreadyExistsWhenEmailConstraintFailsOnSave() {
+        DataIntegrityViolationException exception = new DataIntegrityViolationException("ERROR: duplicate key value violates unique constraint users_email_key detail");
+        UserRegisterRequest userRequest = new UserRegisterRequest("Kayk", "851.25..-42-2", "kAYkAP@gmail.com   ", "123456789", UserType.COMMON);
+        when(repository.save(any())).thenThrow(exception);
+        when(encoder.encode("123456789")).thenReturn("passwordHashids");
+
+        assertThatThrownBy(() -> service.register(userRequest))
+                .isInstanceOf(ResourceAlreadyExistsException.class)
+                .hasMessage("Email already exists");
+    }
+
+    @Test
+    @DisplayName("Should translate document constraint violation into ResourceAlreadyExists")
+    void shouldThrowAlreadyExistsWhenDocumentConstraintFailsOnSave() {
+        DataIntegrityViolationException exception = new DataIntegrityViolationException("ERROR: duplicate key value violates unique constraint users_document_key detail");
+        UserRegisterRequest userRequest = new UserRegisterRequest("Kayk", "851.25..-42-2", "kAYkAP@gmail.com   ", "123456789", UserType.COMMON);
+        when(repository.save(any())).thenThrow(exception);
+        when(encoder.encode("123456789")).thenReturn("PasswordHashids");
+
+        assertThatThrownBy(() -> service.register(userRequest))
+                .isInstanceOf(ResourceAlreadyExistsException.class)
+                .hasMessage("Document already exists");
+    }
+
+    @Test
+    @DisplayName("Should return exception DataIntegrityViolationException")
+    void shouldRethrowOriginalExceptionWhenConstraintIsUnknown() {
+        DataIntegrityViolationException exception = new DataIntegrityViolationException("ERROR: duplicate key value violates unique constraint users_something_key detail");
+        UserRegisterRequest userRequest = new UserRegisterRequest("Kayk", "851.25..-42-2", "kAYkAP@gmail.com   ", "123456789", UserType.COMMON);
+        when(repository.save(any())).thenThrow(exception);
+        when(encoder.encode("123456789")).thenReturn("PasswordHashids");
+
+        assertThatThrownBy(() -> service.register(userRequest))
+                .isInstanceOf(DataIntegrityViolationException.class)
+                .isSameAs(exception);
+    }
+
 }

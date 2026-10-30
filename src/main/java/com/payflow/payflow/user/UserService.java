@@ -1,6 +1,7 @@
 package com.payflow.payflow.user;
 
 import com.payflow.payflow.shared.ResourceAlreadyExistsException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,19 @@ public class UserService {
 
         String encodedPassword = encoder.encode(request.password());
         User createdUser = new User(request.fullName(), normalizedDocument, normalizedEmail, encodedPassword, request.userType());
-        return repository.save(createdUser);
+        try {
+            return repository.save(createdUser);
+        } catch (DataIntegrityViolationException e) {
+            String message = e.getMostSpecificCause().getMessage() != null ? e.getMostSpecificCause().getMessage() : "Null message";
+
+            if (message.contains("users_email_key")) {
+                throw new ResourceAlreadyExistsException("Email already exists");
+            } else if (message.contains("users_document_key")) {
+                throw new ResourceAlreadyExistsException("Document already exists");
+            } else {
+                throw e;
+            }
+        }
+
     }
 }
