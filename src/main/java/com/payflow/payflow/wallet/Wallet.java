@@ -49,7 +49,7 @@ public class Wallet {
     public void credit(Money amount) {
         Objects.requireNonNull(amount, "Amount cannot be null");
         if (amount.isZero()) {
-            throw new IllegalArgumentException("Insufficient amount");
+            throw new IllegalArgumentException("Amount cannot be equals to zero");
         }
 
         this.balance = balance.add(amount);
