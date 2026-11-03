@@ -1,20 +1,25 @@
 package com.payflow.payflow.user;
 
 import com.payflow.payflow.shared.ResourceAlreadyExistsException;
+import com.payflow.payflow.wallet.WalletService;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserService {
     private final PasswordEncoder encoder;
     private final UserRepository repository;
+    private final WalletService walletService;
 
-    public UserService(PasswordEncoder encoder, UserRepository repository) {
+    public UserService(PasswordEncoder encoder, UserRepository repository, WalletService walletService) {
         this.encoder = encoder;
         this.repository = repository;
+        this.walletService = walletService;
     }
 
+    @Transactional
     public User register(UserRegisterRequest request) {
         String normalizedDocument = request.document().replaceAll("\\D", "");
         String normalizedEmail = request.email().toLowerCase().trim();
@@ -28,8 +33,15 @@ public class UserService {
 
         String encodedPassword = encoder.encode(request.password());
         User createdUser = new User(request.fullName(), normalizedDocument, normalizedEmail, encodedPassword, request.userType());
+        User savedUser = saveOrThrowIfDuplicate(createdUser);
+        walletService.create(savedUser);
+        return savedUser;
+    }
+
+    private User saveOrThrowIfDuplicate(User entity) {
+        User user;
         try {
-            return repository.save(createdUser);
+            user = repository.save(entity);
         } catch (DataIntegrityViolationException e) {
             String message = e.getMostSpecificCause().getMessage() != null ? e.getMostSpecificCause().getMessage() : "Null message";
 
@@ -41,6 +53,6 @@ public class UserService {
                 throw e;
             }
         }
-
+        return user;
     }
 }

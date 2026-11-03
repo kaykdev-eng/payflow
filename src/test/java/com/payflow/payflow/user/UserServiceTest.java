@@ -1,6 +1,7 @@
 package com.payflow.payflow.user;
 
 import com.payflow.payflow.shared.ResourceAlreadyExistsException;
+import com.payflow.payflow.wallet.WalletService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +23,8 @@ public class UserServiceTest {
     private PasswordEncoder encoder;
     @Mock
     private UserRepository repository;
+    @Mock
+    private WalletService walletService;
 
     @InjectMocks
     private UserService service;
