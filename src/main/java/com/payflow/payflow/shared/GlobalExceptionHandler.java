@@ -1,5 +1,6 @@
 package com.payflow.payflow.shared;
 
+import com.payflow.payflow.wallet.InsufficientBalanceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -24,6 +25,11 @@ public class GlobalExceptionHandler {
 
         problemDetail.setProperty("errors", errors);
         return problemDetail;
+    }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public ProblemDetail handleInsufficientBalanceException(InsufficientBalanceException e) {
+        return ProblemDetail.forStatusAndDetail(HttpStatus.UNPROCESSABLE_CONTENT, e.getMessage() );
     }
 }
 
