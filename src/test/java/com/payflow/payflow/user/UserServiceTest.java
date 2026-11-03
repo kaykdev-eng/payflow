@@ -59,21 +59,23 @@ public class UserServiceTest {
     @DisplayName("Should register user with encoded password and normalized data")
     void shouldRegisterUser() {
         UserRegisterRequest userRequest = new UserRegisterRequest("Kayk", "851.25..-42-2", "kAYkAP@gmail.com   ", "123", UserType.COMMON);
-        when(encoder.encode("123")).thenReturn("passwordHashids");
 
+        when(encoder.encode("123")).thenReturn("passwordHashids");
+        when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         service.register(userRequest);
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(repository).save(captor.capture());
 
-        User savedUser = captor.getValue();
+        User capturedUser = captor.getValue();
 
-        assertThat(savedUser.getFullName()).isEqualTo("Kayk");
-        assertThat(savedUser.getDocument()).isEqualTo("85125422");
-        assertThat(savedUser.getEmail()).isEqualTo("kaykap@gmail.com");
-        assertThat(savedUser.getPassword()).isEqualTo("passwordHashids");
-        assertThat(savedUser.getPassword()).isNotEqualTo("123");
-        assertThat(savedUser.getUserType()).isEqualTo(UserType.COMMON);
+        assertThat(capturedUser.getFullName()).isEqualTo("Kayk");
+        assertThat(capturedUser.getDocument()).isEqualTo("85125422");
+        assertThat(capturedUser.getEmail()).isEqualTo("kaykap@gmail.com");
+        assertThat(capturedUser.getPassword()).isEqualTo("passwordHashids");
+        assertThat(capturedUser.getPassword()).isNotEqualTo("123");
+        assertThat(capturedUser.getUserType()).isEqualTo(UserType.COMMON);
+        verify(walletService).create(capturedUser);
     }
 
     @Test
