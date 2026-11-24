@@ -1,6 +1,7 @@
 package com.payflow.payflow.pix;
 
 import com.payflow.payflow.shared.ResourceAlreadyExistsException;
+import com.payflow.payflow.shared.ResourceNotFoundException;
 import com.payflow.payflow.wallet.Wallet;
 import com.payflow.payflow.wallet.WalletRepository;
 import org.springframework.stereotype.Service;
@@ -19,25 +20,25 @@ public class PixKeyService {
     }
 
     @Transactional
-    public PixKey register(Long walletId, PixKeyType keyType, String keyValue) {
-        Wallet wallet = walletRepository.findById(walletId).orElseThrow(() -> new IllegalArgumentException("Cannot be find wallet with this id"));
+    public PixKey register(PixKeyRegisterRequest request) {
+        Wallet wallet = walletRepository.findById(request.walletId()).orElseThrow(() -> new ResourceNotFoundException("Wallet not found"));
         String keyNormalize;
 
-        switch (keyType) {
+        switch (request.keyType()) {
             case CPF, CNPJ -> {
-                keyNormalize = keyType.normalize(keyValue);
-                if(!keyNormalize.equals(wallet.getUser().getDocument())) {
+                keyNormalize = request.keyType().normalize(request.keyValue());
+                if (!keyNormalize.equals(wallet.getUser().getDocument())) {
                     throw new IllegalArgumentException("Key value its not the same your document");
                 }
             }
 
             case RANDOM -> {
                 String uuidGenerated = UUID.randomUUID().toString();
-                keyNormalize = keyType.normalize(uuidGenerated);
+                keyNormalize = request.keyType().normalize(uuidGenerated);
             }
 
             default -> {
-                keyNormalize = keyType.normalize(keyValue);
+                keyNormalize = request.keyType().normalize(request.keyValue());
             }
         }
 
@@ -45,7 +46,7 @@ public class PixKeyService {
             throw new ResourceAlreadyExistsException("Key value already exists");
         }
 
-        return repository.save(new PixKey(wallet, keyType, keyNormalize));
+        return repository.save(new PixKey(wallet, request.keyType(), keyNormalize));
     }
 
 }
