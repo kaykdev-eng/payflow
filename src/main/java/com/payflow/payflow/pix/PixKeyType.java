@@ -9,7 +9,7 @@ public enum PixKeyType {
             String cpfValid = requireText(value, "CPF");
             String cpfClean = cpfValid.replaceAll("\\D", "");
             String regexCpf = "\\d{11}";
-            if(!cpfClean.matches(regexCpf)) {
+            if (!cpfClean.matches(regexCpf)) {
                 throw new IllegalArgumentException("Invalid CPF. Check the numbers given");
             }
 
@@ -23,7 +23,7 @@ public enum PixKeyType {
             String cnpjClean = cnpjValid.replaceAll("[\\s./-]", "").toUpperCase();
             String regexCnpj = "[A-Z0-9]{12}\\d{2}";
 
-            if(!cnpjClean.matches(regexCnpj)) {
+            if (!cnpjClean.matches(regexCnpj)) {
                 throw new IllegalArgumentException("Invalid CNPJ format");
             }
 
@@ -37,7 +37,7 @@ public enum PixKeyType {
             String emailClean = value.trim().toLowerCase();
             String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
 
-            if(!emailClean.matches(emailRegex)) {
+            if (!emailClean.matches(emailRegex)) {
                 throw new IllegalArgumentException("Invalid Email. Check the email field");
             }
 
@@ -52,7 +52,7 @@ public enum PixKeyType {
             String phoneClean = value.replaceAll("\\D", "");
             String phone = phoneClean.length() == 11 ? "55" + phoneClean : phoneClean;
 
-            if(!phone.matches(brazilianRegexPhone)) {
+            if (!phone.matches(brazilianRegexPhone)) {
                 throw new IllegalArgumentException("Invalid Phone. Check the Phone field");
             }
 
@@ -61,9 +61,16 @@ public enum PixKeyType {
     },
     RANDOM {
         @Override
-            public String normalize(String value) {
-                return UUID.randomUUID().toString();
+        public String normalize(String value) {
+            requireText(value, "RANDOM");
+            String randomClean = value.trim().toLowerCase();
+
+            if(!UUID.fromString(randomClean).toString().equals(randomClean)) {
+                throw new IllegalArgumentException("Invalid random key");
             }
+
+            return randomClean;
+        }
     };
 
     private static String requireText(String value, String fieldName) {
