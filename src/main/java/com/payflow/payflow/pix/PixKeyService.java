@@ -22,6 +22,10 @@ public class PixKeyService {
     @Transactional
     public PixKey register(PixKeyRegisterRequest request) {
         Wallet wallet = walletRepository.findById(request.walletId()).orElseThrow(() -> new ResourceNotFoundException("Wallet not found"));
+        int maxKeys = wallet.getUser().getUserType().getMaxPixKeys();
+        if(repository.countByWallet(wallet) >= maxKeys) {
+            throw new PixKeyLimitExceededException("Limit of keys already registered. " + maxKeys);
+        }
         String keyNormalize;
 
         switch (request.keyType()) {
