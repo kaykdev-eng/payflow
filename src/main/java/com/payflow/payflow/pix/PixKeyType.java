@@ -10,7 +10,7 @@ public enum PixKeyType {
             String cpfClean = cpfValid.replaceAll("\\D", "");
             String regexCpf = "\\d{11}";
             if (!cpfClean.matches(regexCpf)) {
-                throw new IllegalArgumentException("Invalid CPF. Check the numbers given");
+                throw new InvalidPixKeyException("Invalid CPF. Check the numbers given");
             }
 
             return cpfClean;
@@ -24,7 +24,7 @@ public enum PixKeyType {
             String regexCnpj = "[A-Z0-9]{12}\\d{2}";
 
             if (!cnpjClean.matches(regexCnpj)) {
-                throw new IllegalArgumentException("Invalid CNPJ format");
+                throw new InvalidPixKeyException("Invalid CNPJ format");
             }
 
             return cnpjClean;
@@ -38,7 +38,7 @@ public enum PixKeyType {
             String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
 
             if (!emailClean.matches(emailRegex)) {
-                throw new IllegalArgumentException("Invalid Email. Check the email field");
+                throw new InvalidPixKeyException("Invalid Email. Check the email field");
             }
 
             return emailClean;
@@ -53,7 +53,7 @@ public enum PixKeyType {
             String phone = phoneClean.length() == 11 ? "55" + phoneClean : phoneClean;
 
             if (!phone.matches(brazilianRegexPhone)) {
-                throw new IllegalArgumentException("Invalid Phone. Check the Phone field");
+                throw new InvalidPixKeyException("Invalid Phone. Check the Phone field");
             }
 
             return "+" + phone;
@@ -64,10 +64,14 @@ public enum PixKeyType {
         public String normalize(String value) {
             requireText(value, "RANDOM");
             String randomClean = value.trim().toLowerCase();
-
-            if(!UUID.fromString(randomClean).toString().equals(randomClean)) {
-                throw new IllegalArgumentException("Invalid random key");
+            try {
+                if (!UUID.fromString(randomClean).toString().equals(randomClean)) {
+                    throw new InvalidPixKeyException("Invalid random key");
+                }
+            } catch (IllegalArgumentException e) {
+                throw new InvalidPixKeyException("Invalid random key");
             }
+
 
             return randomClean;
         }
@@ -75,7 +79,7 @@ public enum PixKeyType {
 
     private static String requireText(String value, String fieldName) {
         if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(fieldName + " is required");
+            throw new InvalidPixKeyException(fieldName + " is required");
         }
         return value;
     }

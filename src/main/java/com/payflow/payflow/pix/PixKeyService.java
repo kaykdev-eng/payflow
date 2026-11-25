@@ -28,7 +28,7 @@ public class PixKeyService {
             case CPF, CNPJ -> {
                 keyNormalize = request.keyType().normalize(request.keyValue());
                 if (!keyNormalize.equals(wallet.getUser().getDocument())) {
-                    throw new IllegalArgumentException("Key value its not the same your document");
+                    throw new InvalidPixKeyException("Key value does not match the owner's document");
                 }
             }
 
