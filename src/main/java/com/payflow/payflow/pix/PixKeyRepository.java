@@ -8,6 +8,6 @@ import java.util.Optional;
 public interface PixKeyRepository extends JpaRepository<PixKey, Long> {
     boolean existsByKeyValue(String keyValue);
     Optional<PixKey> findByKeyValue(String keyValue);
-    Long countByWallet(Wallet wallet);
+    long countByWallet(Wallet wallet);
 
 }
